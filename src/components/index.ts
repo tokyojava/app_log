@@ -12,7 +12,6 @@ export {
   versionToMarkdown,
 } from '../utils/changelogParser';
 
-console.log(345)
 console.log(123)
 export type { ChangelogVersion, ParsedChangelog } from '../utils/changelogParser';
 
