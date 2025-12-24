@@ -32,8 +32,8 @@ template: |
   $CONTRIBUTORS
 
 # 贡献者模板
-contributors-template: '## 👥 Contributors\n\n$CONTRIBUTORS'
-contributor-template: '- @$CONTRIBUTOR'
+# contributors-template: '## 👥 Contributors\n\n$CONTRIBUTORS'
+# contributor-template: '- @$CONTRIBUTOR'
 
 # 分类配置 - 根据 PR Label 自动分类
 categories:
@@ -76,7 +76,11 @@ version-resolver:
   default: patch
 
 # 每个变更条目的格式
-change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+# $TITLE - PR 标题
+# $BODY - PR 正文描述
+# $NUMBER - PR 编号
+# $AUTHOR - PR 作者
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR\n  $BODY'
 change-title-escapes: '\<*_&'
 
 # 没有变更时的占位文本
