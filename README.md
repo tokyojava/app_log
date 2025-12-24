@@ -24,6 +24,7 @@ gh label create "changelog:changed" --color "1D76DB" --description "功能变更
 gh label create "changelog:fixed" --color "FBCA04" --description "Bug 修复"
 gh label create "changelog:removed" --color "B60205" --description "移除功能"
 gh label create "changelog:skip" --color "EEEEEE" --description "不记录"
+gh label create "changelog:deprecated" --color "FF0012" --description "Deprecated"
 ```
 
 ### 2. 安装前端依赖
