@@ -29,7 +29,6 @@ template: |
 
   $CHANGES
 
-  $CONTRIBUTORS
 
 # 贡献者模板
 # contributors-template: '## 👥 Contributors\n\n$CONTRIBUTORS'
@@ -80,7 +79,10 @@ version-resolver:
 # $BODY - PR 正文描述
 # $NUMBER - PR 编号
 # $AUTHOR - PR 作者
-change-template: '- $TITLE (#$NUMBER) @$AUTHOR\n  $BODY'
+change-template: |
+  ### $TITLE
+
+  $BODY
 change-title-escapes: '\<*_&'
 
 # 没有变更时的占位文本
