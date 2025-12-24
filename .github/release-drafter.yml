@@ -25,13 +25,11 @@ include-pre-releases: false
 template: |
   ## What's Changed
   
-  > 📦 本次发布包含 $NUMBER_OF_CHANGES 个变更，涵盖从 $PREVIOUS_TAG 到现在的所有合并请求
+  > 📦 本次发布包含 $NUMBER_OF_CHANGES 个变更
 
   $CHANGES
 
   $CONTRIBUTORS
-
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
 
 # 贡献者模板
 contributors-template: '## 👥 Contributors\n\n$CONTRIBUTORS'
