@@ -1,17 +1,41 @@
 # release-drafter 配置文件
 # 文档: https://github.com/release-drafter/release-drafter
+#
+# 工作机制:
+#   1. 自动追踪从【上一个 release tag】到【现在】的所有 PR
+#   2. 已经包含在某个 release 中的 PR 不会重复出现
+#   3. 多个 PR 会累积到 Draft Release 中，直到你手动发布
+#
+# 示例: 
+#   - v1.0.0 发布后，PR #10, #11, #12 合并
+#   - Draft Release 会包含这 3 个 PR
+#   - 发布 v1.1.0 后，这 3 个 PR 不会再出现在下一个 Draft 中
 
 # 版本号命名模板
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 
+# 只追踪目标分支 (main) 的 PR，确保不重复
+filter-by-commitish: true
+
+# 不包含预发布版本的 PR
+include-pre-releases: false
+
 # Release Notes 模板
 template: |
   ## What's Changed
+  
+  > 📦 本次发布包含 $NUMBER_OF_CHANGES 个变更，涵盖从 $PREVIOUS_TAG 到现在的所有合并请求
 
   $CHANGES
 
+  $CONTRIBUTORS
+
   **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+
+# 贡献者模板
+contributors-template: '## 👥 Contributors\n\n$CONTRIBUTORS'
+contributor-template: '- @$CONTRIBUTOR'
 
 # 分类配置 - 根据 PR Label 自动分类
 categories:
@@ -60,9 +84,13 @@ change-title-escapes: '\<*_&'
 # 没有变更时的占位文本
 no-changes-template: '- No changes'
 
-# 排序方式
+# 排序方式 - 按合并时间升序（最早的在前）
 sort-direction: ascending
 
+# 去重: 排除已经在某个 release 中的 PR (release-drafter 默认行为)
+# 原理: 只会包含从 $PREVIOUS_TAG 到 HEAD 之间合并的 PR
+
+# 根据 PR 标题自动添加 label
 autolabeler:
   - label: 'changelog:fixed'
     title:

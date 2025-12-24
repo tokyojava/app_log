@@ -1,5 +1,11 @@
 # Release Drafter - 自动收集 PR 信息并生成 Draft Release
-# 每次 PR 合并到 main 分支时触发
+#
+# 工作机制:
+#   1. PR 合并到 main → 自动将 PR 添加到 Draft Release
+#   2. PR 创建/更新 → 根据标题自动添加 changelog label
+#   3. 多个 PR 会累积，已发布的 PR 不会重复包含
+#
+# 详细说明见: .github/RELEASE_GUIDE.md
 
 name: Release Drafter
 
@@ -9,6 +15,8 @@ on:
       - main
   pull_request:
     types: [opened, reopened, synchronize, labeled, unlabeled]
+  # 支持手动触发
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,10 +30,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Release Drafter
+        id: release-drafter
         uses: release-drafter/release-drafter@v6
         with:
           config-name: release-drafter.yml
           disable-autolabeler: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log Release Info
+        if: github.event_name == 'push'
+        run: |
+          echo "📝 Draft Release 已更新"
+          echo "   版本: ${{ steps.release-drafter.outputs.tag_name }}"
+          echo "   名称: ${{ steps.release-drafter.outputs.name }}"
+          echo "   URL: ${{ steps.release-drafter.outputs.html_url }}"
 
