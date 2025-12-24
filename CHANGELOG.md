@@ -15,3 +15,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.0.0] - 2025-12-24
+
+### 🔄 Changes
+
+#### make changes to changelog template
+
+add
+
+#### Refactor
+
+<!-- 请简要描述这个 PR 的变更内容 -->
+Refactor
+
+
+### 🗑️ Removed
+
+#### delete row
+
+<!-- 请简要描述这个 PR 的变更内容 -->
+delete a row
+
+
+### 🐛 Bug Fixes
+
+#### fix
+
+<!-- 请简要描述这个 PR 的变更内容 -->
+Overall introduction new features
+#### Point 1
+Here I would like to say sth
+#### Point 2
+Here I would like to say sth
+Ending...
+with some screenshot
+<img width="980" height="749" alt="image" src="https://github.com/user-attachments/assets/30169d62-fb06-4be7-98a6-6263391ee7e7" />
+
+
