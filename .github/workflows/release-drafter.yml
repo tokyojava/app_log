@@ -13,8 +13,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, reopened, synchronize]
   # 支持手动触发
   workflow_dispatch:
 
@@ -25,7 +23,6 @@ permissions:
 jobs:
   # 只在 push 到 main 时更新 Draft Release
   update_release_draft:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
       pull-requests: write
@@ -48,18 +45,3 @@ jobs:
           echo "   名称: ${{ steps.release-drafter.outputs.name }}"
           echo "   URL: ${{ steps.release-drafter.outputs.html_url }}"
 
-  # PR 创建/更新时只运行 autolabeler
-  autolabel:
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Autolabeler
-        uses: release-drafter/release-drafter@v6
-        with:
-          config-name: release-drafter.yml
-          disable-releaser: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
