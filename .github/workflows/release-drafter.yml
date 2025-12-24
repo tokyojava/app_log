@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   # 只在 push 到 main 时更新 Draft Release
+  if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
   update_release_draft:
     permissions:
       contents: write
