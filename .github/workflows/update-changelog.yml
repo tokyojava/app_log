@@ -1,18 +1,13 @@
-# Update Changelog - 发布新版本时自动更新 CHANGELOG.md
-# 当 Release 发布时触发
+# Update Changelog - When a release is published
+#
+# How it works:
+#   1. When a release is published -> Update CHANGELOG.md
+#
+# See: .github/RELEASE_GUIDE.md
 
 name: Update Changelog
 
-on:
-  release:
-    types: [published]
-
-permissions:
-  contents: write
-
-jobs:
-  update-changelog:
-    runs-on: ubuntu-latest
+on: push
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -1,42 +1,42 @@
-# Release 发布指南
+# Release Guide
 
-## PR 累积机制
+## PR Accumulation Mechanism
 
-release-drafter 会自动追踪和累积 PR，确保不会重复包含：
+release-drafter automatically tracks and accumulates PRs, ensuring no duplicates:
 
 ```
-时间线:
+Timeline:
 ────────────────────────────────────────────────────────────────────►
 
 v1.0.0                                              v1.1.0
   │                                                    │
   ▼                                                    ▼
-  ├── PR #10 (feat: 用户头像)  ─┐                      │
-  │                            │                      │
-  ├── PR #11 (fix: 登录问题)   ├──► Draft Release ──► 发布 v1.1.0
-  │                            │    (累积 3 个 PR)     │
-  ├── PR #12 (feat: 暗黑模式)  ─┘                      │
+  ├── PR #10 (feat: user avatar)  ─┐                   │
+  │                                │                   │
+  ├── PR #11 (fix: login issue)   ─┼──► Draft Release ─┼──► Release v1.1.0
+  │                                │    (3 PRs)        │
+  ├── PR #12 (feat: dark mode)    ─┘                   │
   │                                                    │
-  ├── PR #13 (fix: 样式问题)   ─┐                      
-  │                            │                      
-  ├── PR #14 (feat: 导出功能)  ├──► 新的 Draft Release
-  │                            │    (不包含 #10-#12)   
-  └── ...                      ─┘                      
+  ├── PR #13 (fix: style issue)   ─┐                      
+  │                                │                      
+  ├── PR #14 (feat: export)       ─┼──► New Draft Release
+  │                                │    (excludes #10-#12)   
+  └── ...                         ─┘                      
 ```
 
-## 发布流程
+## Release Workflow
 
-### 步骤 1: 日常开发
+### Step 1: Daily Development
 
-每次 PR 合并到 main 分支时：
+Each time a PR is merged to the main branch:
 
-1. release-drafter 自动运行
-2. 读取 PR 的 labels（如 `changelog:added`）
-3. 将 PR 添加到 Draft Release 中
+1. release-drafter runs automatically
+2. Reads the PR's labels (e.g., `changelog:added`)
+3. Adds the PR to the Draft Release
 
-### 步骤 2: 查看 Draft Release
+### Step 2: View Draft Release
 
-进入 GitHub → Releases 页面，你会看到：
+Go to GitHub → Releases page, you will see:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -46,72 +46,71 @@ v1.0.0                                              v1.1.0
 │                                                                 │
 │  ## What's Changed                                              │
 │                                                                 │
-│  📦 本次发布包含 5 个变更，涵盖从 v1.1.0 到现在的所有合并请求  │
+│  📦 This release contains 5 changes since v1.1.0                │
 │                                                                 │
 │  🚀 New Features                                                │
-│  - 新增用户头像上传功能 (#123) @developer1                      │
-│  - 支持暗黑模式 (#125) @developer2                              │
+│  - Add user avatar upload (#123) @developer1                    │
+│  - Support dark mode (#125) @developer2                         │
 │                                                                 │
 │  🐛 Bug Fixes                                                   │
-│  - 修复登录失败问题 (#124) @developer1                          │
+│  - Fix login failure issue (#124) @developer1                   │
 │                                                                 │
 │                                        [Edit] [Publish release] │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 步骤 3: 编辑（可选）
+### Step 3: Edit (Optional)
 
-点击 Edit 可以：
-- 润色变更描述
-- 调整版本号
-- 添加额外说明
-- 删除不想包含的条目
+Click Edit to:
+- Polish change descriptions
+- Adjust version number
+- Add additional notes
+- Remove unwanted entries
 
-### 步骤 4: 发布
+### Step 4: Publish
 
-点击 "Publish release" 后：
-1. Release 正式发布
-2. 自动触发 `update-changelog.yml`
-3. CHANGELOG.md 自动更新
-4. 新的 Draft Release 开始累积
+After clicking "Publish release":
+1. Release is officially published
+2. Automatically triggers `update-changelog.yml`
+3. CHANGELOG.md is automatically updated
+4. A new Draft Release starts accumulating
 
-## 常见问题
+## FAQ
 
-### Q: 为什么某个 PR 没有出现在 Draft Release 中？
+### Q: Why doesn't a PR appear in the Draft Release?
 
-检查以下几点：
-1. PR 是否已经合并到 main 分支？
-2. PR 是否有 `changelog:skip` label？（有的话会被排除）
-3. PR 是否已经包含在之前的 release 中？
+Check the following:
+1. Has the PR been merged to the main branch?
+2. Does the PR have a `changelog:skip` label? (If so, it will be excluded)
+3. Has the PR already been included in a previous release?
 
-### Q: 如何手动触发 Draft Release 更新？
+### Q: How to manually trigger a Draft Release update?
 
-进入 Actions → Release Drafter → Run workflow
+Go to Actions → Release Drafter → Run workflow
 
-### Q: 想要排除某个已合并的 PR？
+### Q: Want to exclude a merged PR?
 
-1. 在 Draft Release 中直接删除那一行
-2. 或者给 PR 添加 `changelog:skip` label（需要重新触发）
+1. Delete that line directly in the Draft Release
+2. Or add `changelog:skip` label to the PR (requires re-triggering)
 
-### Q: 版本号是如何确定的？
+### Q: How is the version number determined?
 
-根据 PR 的 labels 自动计算：
-- 有 `version:major` → 主版本号 +1 (1.0.0 → 2.0.0)
-- 有 `version:minor` 或 `changelog:added` → 次版本号 +1 (1.0.0 → 1.1.0)
-- 其他情况 → 补丁版本号 +1 (1.0.0 → 1.0.1)
+Automatically calculated based on PR labels:
+- Has `version:major` → Major version +1 (1.0.0 → 2.0.0)
+- Has `version:minor` or `changelog:added` → Minor version +1 (1.0.0 → 1.1.0)
+- Otherwise → Patch version +1 (1.0.0 → 1.0.1)
 
-## Label 对照表
+## Label Reference
 
-| PR Label | Release 分类 | 版本影响 |
-|----------|-------------|---------|
+| PR Label | Release Category | Version Impact |
+|----------|-----------------|----------------|
 | `changelog:added` | 🚀 New Features | minor |
 | `changelog:changed` | 🔄 Changes | - |
 | `changelog:deprecated` | ⚠️ Deprecated | - |
 | `changelog:removed` | 🗑️ Removed | - |
 | `changelog:fixed` | 🐛 Bug Fixes | patch |
 | `changelog:security` | 🔒 Security | - |
-| `changelog:skip` | (不记录) | - |
+| `changelog:skip` | (not recorded) | - |
 | `version:major` | - | major |
 | `version:minor` | - | minor |
 | `version:patch` | - | patch |
-
