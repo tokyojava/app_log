@@ -25,6 +25,7 @@ permissions:
 jobs:
   # 只在 push 到 main 时更新 Draft Release
   update_release_draft:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
       pull-requests: write

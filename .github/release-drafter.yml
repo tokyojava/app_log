@@ -105,6 +105,11 @@ autolabeler:
       - '/feat/i'
       - '/feature/i'
       - '/add/i'
+
+  - label: 'changelog:deprecated'
+    title:
+      - '/deprecated/i'
+      
   - label: 'changelog:changed'
     title:
       - '/change/i'
