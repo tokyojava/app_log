@@ -15,6 +15,7 @@ export {
 console.log(12345)
 console.log(12345)
 console.log(12345)
+console.log(12345)
 console.log(456);
 export type { ChangelogVersion, ParsedChangelog } from '../utils/changelogParser';
 
