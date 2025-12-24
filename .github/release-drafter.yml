@@ -25,7 +25,8 @@ include-pre-releases: false
 template: |
   ## What's Changed
   
-  > 📦 本次发布包含 $NUMBER_OF_CHANGES 个变更
+  > 📦 The content here will not be displayed in the release notes.
+  The content below will be displayed in the release notes.
 
   $CHANGES
 
@@ -109,7 +110,7 @@ autolabeler:
   - label: 'changelog:deprecated'
     title:
       - '/deprecated/i'
-      
+
   - label: 'changelog:changed'
     title:
       - '/change/i'
