@@ -15,8 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-<!-- 
-发布新版本时，将上方 Unreleased 的内容移动到新版本区域，格式如下：
+## [0.1.0] - 2025-12-24
+
+### Changed
+
+- test (#1) @tokyojava
+
+### Removed
+
+- remove some code (#2) @tokyojava
+
+### Fixed
+
+- add 123 back (#5) @tokyojava
+
 
 ## [1.0.0] - 2024-01-01
 
