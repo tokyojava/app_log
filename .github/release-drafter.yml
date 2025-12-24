@@ -1,0 +1,88 @@
+# release-drafter 配置文件
+# 文档: https://github.com/release-drafter/release-drafter
+
+# 版本号命名模板
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+# Release Notes 模板
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+
+# 分类配置 - 根据 PR Label 自动分类
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - 'changelog:added'
+  - title: '🔄 Changes'
+    labels:
+      - 'changelog:changed'
+  - title: '⚠️ Deprecated'
+    labels:
+      - 'changelog:deprecated'
+  - title: '🗑️ Removed'
+    labels:
+      - 'changelog:removed'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'changelog:fixed'
+  - title: '🔒 Security'
+    labels:
+      - 'changelog:security'
+
+# 排除不需要记录的 PR
+exclude-labels:
+  - 'changelog:skip'
+
+# 版本号自动递增规则
+version-resolver:
+  major:
+    labels:
+      - 'version:major'
+  minor:
+    labels:
+      - 'version:minor'
+      - 'changelog:added'
+  patch:
+    labels:
+      - 'version:patch'
+      - 'changelog:fixed'
+  default: patch
+
+# 每个变更条目的格式
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+change-title-escapes: '\<*_&'
+
+# 没有变更时的占位文本
+no-changes-template: '- No changes'
+
+# 排序方式
+sort-direction: ascending
+
+autolabeler:
+  - label: 'changelog:fixed'
+    title:
+      - '/fix/i'
+      - '/bug/i'
+  - label: 'changelog:added'
+    title:
+      - '/feat/i'
+      - '/feature/i'
+      - '/add/i'
+  - label: 'changelog:changed'
+    title:
+      - '/change/i'
+      - '/update/i'
+      - '/refactor/i'
+  - label: 'changelog:removed'
+    title:
+      - '/remove/i'
+      - '/delete/i'
+  - label: 'changelog:security'
+    title:
+      - '/security/i'
+

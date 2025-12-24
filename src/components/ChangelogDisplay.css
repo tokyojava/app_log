@@ -1,0 +1,323 @@
+/* CHANGELOG 展示组件样式 */
+
+.changelog-display {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  color: #1a1a2e;
+}
+
+/* 标题 */
+.changelog-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #1a1a2e;
+  letter-spacing: -0.02em;
+}
+
+/* 加载状态 */
+.changelog-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px;
+  color: #64748b;
+}
+
+.changelog-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e2e8f0;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 错误状态 */
+.changelog-error {
+  padding: 24px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  color: #dc2626;
+  text-align: center;
+}
+
+/* 空状态 */
+.changelog-empty {
+  padding: 48px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+/* 版本列表 */
+.changelog-versions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 单个版本卡片 */
+.changelog-version {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.changelog-version:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.changelog-version-latest {
+  border-color: #6366f1;
+  border-width: 2px;
+}
+
+.changelog-version-latest:hover {
+  border-color: #4f46e5;
+}
+
+/* 版本头部 */
+.changelog-version-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  background: #f8fafc;
+  transition: background 0.2s ease;
+}
+
+.changelog-version-header:hover {
+  background: #f1f5f9;
+}
+
+.changelog-version-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.changelog-version-number {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.changelog-version-date {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.changelog-version-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.changelog-toggle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+}
+
+.changelog-toggle.expanded {
+  transform: rotate(180deg);
+}
+
+/* 版本内容 */
+.changelog-version-content {
+  padding: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* 分类 */
+.changelog-category {
+  margin-bottom: 20px;
+}
+
+.changelog-category:last-child {
+  margin-bottom: 0;
+}
+
+.changelog-category-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 12px;
+}
+
+.changelog-category-icon {
+  font-size: 1rem;
+}
+
+/* 条目列表 */
+.changelog-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.changelog-item {
+  position: relative;
+  padding: 8px 0 8px 20px;
+  font-size: 0.9375rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.changelog-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 6px;
+  height: 6px;
+  background: #cbd5e1;
+  border-radius: 50%;
+}
+
+.changelog-item p {
+  margin: 0;
+}
+
+.changelog-item a {
+  color: #6366f1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.changelog-item a:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.changelog-item code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875em;
+  padding: 2px 6px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  color: #e11d48;
+}
+
+/* 查看更多按钮 */
+.changelog-show-more {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 24px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #6366f1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.changelog-show-more:hover {
+  background: #f1f5f9;
+  border-color: #6366f1;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .changelog-display {
+    color: #e2e8f0;
+  }
+
+  .changelog-title {
+    color: #f1f5f9;
+  }
+
+  .changelog-version {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .changelog-version:hover {
+    border-color: #475569;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .changelog-version-latest {
+    border-color: #818cf8;
+  }
+
+  .changelog-version-header {
+    background: #0f172a;
+  }
+
+  .changelog-version-header:hover {
+    background: #1e293b;
+  }
+
+  .changelog-version-number {
+    color: #f1f5f9;
+  }
+
+  .changelog-version-date {
+    color: #94a3b8;
+  }
+
+  .changelog-version-content {
+    border-top-color: #334155;
+  }
+
+  .changelog-category-title {
+    color: #cbd5e1;
+  }
+
+  .changelog-item {
+    color: #94a3b8;
+  }
+
+  .changelog-item::before {
+    background: #64748b;
+  }
+
+  .changelog-item code {
+    background: #334155;
+    color: #f472b6;
+  }
+
+  .changelog-show-more {
+    background: #1e293b;
+    border-color: #334155;
+    color: #818cf8;
+  }
+
+  .changelog-show-more:hover {
+    background: #334155;
+    border-color: #818cf8;
+  }
+
+  .changelog-error {
+    background: #450a0a;
+    border-color: #7f1d1d;
+    color: #fca5a5;
+  }
+}
+

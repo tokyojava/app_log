@@ -1,0 +1,46 @@
+# GitHub Labels 配置
+# 可通过 GitHub CLI 或 actions/labeler 同步这些 labels
+# 手动创建: gh label create "changelog:added" --color "0E8A16" --description "新增功能"
+
+# Changelog 相关 Labels
+- name: "changelog:added"
+  color: "0E8A16"
+  description: "新增功能 - 会出现在 CHANGELOG 的 Added 分类"
+
+- name: "changelog:changed"
+  color: "1D76DB"
+  description: "功能变更 - 会出现在 CHANGELOG 的 Changed 分类"
+
+- name: "changelog:deprecated"
+  color: "FEF2C0"
+  description: "即将废弃 - 会出现在 CHANGELOG 的 Deprecated 分类"
+
+- name: "changelog:removed"
+  color: "B60205"
+  description: "移除功能 - 会出现在 CHANGELOG 的 Removed 分类"
+
+- name: "changelog:fixed"
+  color: "FBCA04"
+  description: "Bug 修复 - 会出现在 CHANGELOG 的 Fixed 分类"
+
+- name: "changelog:security"
+  color: "D93F0B"
+  description: "安全修复 - 会出现在 CHANGELOG 的 Security 分类"
+
+- name: "changelog:skip"
+  color: "EEEEEE"
+  description: "不记录到 CHANGELOG"
+
+# 版本类型 Labels (用于 release-drafter 版本号自动递增)
+- name: "version:major"
+  color: "B60205"
+  description: "主版本更新 (breaking changes)"
+
+- name: "version:minor"
+  color: "0E8A16"
+  description: "次版本更新 (新功能)"
+
+- name: "version:patch"
+  color: "FBCA04"
+  description: "补丁版本更新 (bug 修复)"
+
