@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug update-changelog.js",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/.github/scripts/update-changelog.js",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RELEASE_TAG_NAME": "0.4.0",
+        "RELEASE_BODY": "## What's Changed\n\n> 📦 本次发布包含 2 个变更\n\n🚀 New Features\n\n### 新增用户头像功能\n\n支持 jpg/png 格式，最大 5MB\n\n### 支持暗黑模式\n\n根据系统设置自动切换\n\n🐛 Bug Fixes\n\n### 修复登录问题\n\n修复了在某些情况下登录失败的问题"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "Debug update-changelog.js (简单测试)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/.github/scripts/update-changelog.js",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RELEASE_TAG_NAME": "0.4.0",
+        "RELEASE_BODY": "🚀 New Features\n\n### 测试功能\n\n这是测试正文"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}
+

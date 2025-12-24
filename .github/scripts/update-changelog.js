@@ -27,15 +27,15 @@ if (!tagName) {
 const version = tagName.replace(/^v/, '');
 const date = new Date().toISOString().split('T')[0];
 
-// release-drafter 生成的 emoji 标题 -> Keep a Changelog 分类
-const SECTION_MAPPING = {
-  '🚀 New Features': 'Added',
-  '🔄 Changes': 'Changed',
-  '⚠️ Deprecated': 'Deprecated',
-  '🗑️ Removed': 'Removed',
-  '🐛 Bug Fixes': 'Fixed',
-  '🔒 Security': 'Security'
-};
+// release-drafter 生成的分类标题（用文字匹配，不用 emoji）
+const SECTION_KEYWORDS = [
+  '🚀 New Features',
+  '🔄 Changes',
+  '⚠️ Deprecated',
+  '🗑️ Removed',
+  '🐛 Bug Fixes',
+  '🔒 Security'
+];
 
 /**
  * 将 release-drafter 生成的 release notes 转换为 CHANGELOG 格式
@@ -52,53 +52,87 @@ function convertToChangelog(body) {
   };
 
   if (!body || !body.trim()) {
-    result.changelog = `\n### Added\n\n- Release ${version}\n`;
+    result.changelog = `\n### New Features\n\n- Release ${version}\n`;
     result.stats.total = 1;
     return result;
   }
 
   let currentSection = null;
+  let currentItem = null;
   const sections = {};
 
   // 初始化所有分类
-  for (const section of Object.values(SECTION_MAPPING)) {
+  for (const section of SECTION_KEYWORDS) {
     sections[section] = [];
   }
 
   const lines = body.split('\n');
 
   for (const line of lines) {
-    // 检查是否是分类标题
-    for (const [emoji, section] of Object.entries(SECTION_MAPPING)) {
-      if (line.includes(emoji)) {
+    const trimmedLine = line.trim();
+
+    // 检查是否是分类标题（包含 New Features, Bug Fixes 等关键词）
+    let isSectionHeader = false;
+    for (const section of SECTION_KEYWORDS) {
+      if (line.includes(section)) {
+        // 保存之前的条目
+        if (currentItem && currentSection) {
+          sections[currentSection].push(currentItem);
+          result.stats.total++;
+        }
         currentSection = section;
+        currentItem = null;
+        isSectionHeader = true;
         break;
       }
     }
+    if (isSectionHeader) continue;
 
-    // 如果是变更条目（以 - 开头）
-    const trimmedLine = line.trim();
-    if (trimmedLine.startsWith('- ') && currentSection) {
-      sections[currentSection].push(trimmedLine);
-      result.stats.total++;
+    // 检查是否是变更条目标题（以 ### 开头）
+    if (trimmedLine.startsWith('### ') && currentSection) {
+      // 保存之前的条目
+      if (currentItem) {
+        sections[currentSection].push(currentItem);
+        result.stats.total++;
+      }
+      // 开始新条目
+      currentItem = {
+        title: trimmedLine.replace(/^### /, ''),
+        body: []
+      };
+      continue;
+    }
+
+    // 收集条目正文
+    if (currentItem && trimmedLine) {
+      currentItem.body.push(trimmedLine);
     }
   }
 
-  // 生成 changelog 内容
-  const sectionOrder = ['Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Security'];
+  // 保存最后一个条目
+  if (currentItem && currentSection) {
+    sections[currentSection].push(currentItem);
+    result.stats.total++;
+  }
 
-  for (const section of sectionOrder) {
+  // 生成 changelog 内容，保持原有分类名称
+  for (const section of SECTION_KEYWORDS) {
     const items = sections[section];
     if (items.length > 0) {
       result.changelog += `\n### ${section}\n\n`;
-      result.changelog += items.join('\n') + '\n';
+      for (const item of items) {
+        result.changelog += `#### ${item.title}\n\n`;
+        if (item.body.length > 0) {
+          result.changelog += item.body.join('\n') + '\n\n';
+        }
+      }
       result.stats.bySection[section] = items.length;
     }
   }
 
   // 如果没有任何变更，添加默认条目
   if (result.stats.total === 0) {
-    result.changelog = `\n### Added\n\n- Release ${version}\n`;
+    result.changelog = `\n### New Features\n\n- Release ${version}\n`;
     result.stats.total = 1;
   }
 
@@ -126,7 +160,7 @@ function updateChangelog() {
   const newVersionContent = `## [${version}] - ${date}\n${changelogContent}`;
 
   // 空的 Unreleased 区域
-  const emptyUnreleased = `## [Unreleased]\n\n### Added\n\n### Changed\n\n### Fixed\n\n### Removed\n\n`;
+  const emptyUnreleased = `## [Unreleased]\n\n### New Features\n\n### Changes\n\n### Bug Fixes\n\n### Removed\n\n`;
 
   // 尝试多种模式匹配 Unreleased 区域
   let updated = false;
