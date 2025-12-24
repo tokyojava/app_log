@@ -13,6 +13,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, reopened, synchronize]
   # 支持手动触发
   workflow_dispatch:
 
@@ -35,6 +37,8 @@ jobs:
           config-name: release-drafter.yml
           # 指定目标分支，避免 target_commitish 错误
           commitish: main
+          # 禁用 autolabeler，由单独的 autolabel job 处理
+          disable-autolabeler: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,3 +49,19 @@ jobs:
           echo "   名称: ${{ steps.release-drafter.outputs.name }}"
           echo "   URL: ${{ steps.release-drafter.outputs.html_url }}"
 
+  # PR 创建/更新时自动打标签
+  autolabel:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Autolabeler
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml
+          # 只运行 autolabeler，不创建/更新 release
+          disable-releaser: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
