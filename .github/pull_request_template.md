@@ -8,7 +8,6 @@ Overall introduction new features
 Here I would like to say sth
 #### Point 2
 Here I would like to say sth
-
 Ending...
 
 with some screenshot
