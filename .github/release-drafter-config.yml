@@ -1,66 +1,35 @@
-# release-drafter 配置文件
-# 文档: https://github.com/release-drafter/release-drafter
+# release-drafter config
+# Docs: https://github.com/release-drafter/release-drafter
 #
-# 工作机制:
-#   1. 自动追踪从【上一个 release tag】到【现在】的所有 PR
-#   2. 已经包含在某个 release 中的 PR 不会重复出现
-#   3. 多个 PR 会累积到 Draft Release 中，直到你手动发布
-#
-# 示例: 
-#   - v1.0.0 发布后，PR #10, #11, #12 合并
-#   - Draft Release 会包含这 3 个 PR
-#   - 发布 v1.1.0 后，这 3 个 PR 不会再出现在下一个 Draft 中
+# How it works:
+#   1. Tracks all PRs from the last release tag to now
+#   2. PRs already in a release won't be duplicated
+#   3. Multiple PRs accumulate until you manually publish
 
-# 版本号命名模板
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 
-# 只追踪目标分支 (main) 的 PR，确保不重复
+# Only track PRs to main branch
 filter-by-commitish: true
 
-# 不包含预发布版本的 PR
+# Don't include pre-releases
 include-pre-releases: false
 
-# Release Notes 模板
+# Release Notes template
+# Each PR's CodeRabbit summary will be extracted by update-changelog.js
 template: |
   ## What's Changed
-  
-  > 📦 The content here will not be displayed in the release notes.
-  The content below will be displayed in the release notes.
 
   $CHANGES
 
+# No categories - CodeRabbit summary already has categories
+# The update-changelog.js script will extract and merge categories from each PR
 
-# 贡献者模板
-# contributors-template: '## 👥 Contributors\n\n$CONTRIBUTORS'
-# contributor-template: '- @$CONTRIBUTOR'
-
-# 分类配置 - 根据 PR Label 自动分类
-categories:
-  - title: '🚀 New Features'
-    labels:
-      - 'changelog:added'
-  - title: '🔄 Changes'
-    labels:
-      - 'changelog:changed'
-  - title: '⚠️ Deprecated'
-    labels:
-      - 'changelog:deprecated'
-  - title: '🗑️ Removed'
-    labels:
-      - 'changelog:removed'
-  - title: '🐛 Bug Fixes'
-    labels:
-      - 'changelog:fixed'
-  - title: '🔒 Security'
-    labels:
-      - 'changelog:security'
-
-# 排除不需要记录的 PR
+# Exclude PRs with these labels
 exclude-labels:
   - 'changelog:skip'
 
-# 版本号自动递增规则
+# Version resolver
 version-resolver:
   major:
     labels:
@@ -68,59 +37,35 @@ version-resolver:
   minor:
     labels:
       - 'version:minor'
-      - 'changelog:added'
   patch:
     labels:
       - 'version:patch'
-      - 'changelog:fixed'
   default: patch
 
-# 每个变更条目的格式
-# $TITLE - PR 标题
-# $BODY - PR 正文描述
-# $NUMBER - PR 编号
-# $AUTHOR - PR 作者
+# Change template - output PR title and body
+# The body contains CodeRabbit summary which will be parsed later
 change-template: |
-  ### $TITLE
-
+  ---
+  ### PR: $TITLE (#$NUMBER)
+  
   $BODY
+  
+  ---
+
 change-title-escapes: '\<*_&'
 
-# 没有变更时的占位文本
 no-changes-template: '- No changes'
 
-# 排序方式 - 按合并时间升序（最早的在前）
 sort-direction: ascending
 
-# 去重: 排除已经在某个 release 中的 PR (release-drafter 默认行为)
-# 原理: 只会包含从 $PREVIOUS_TAG 到 HEAD 之间合并的 PR
-
-# 根据 PR 标题自动添加 label
+# Autolabeler based on PR title (optional, for version bumping)
 autolabeler:
-  - label: 'changelog:fixed'
+  - label: 'version:patch'
     title:
       - '/fix/i'
       - '/bug/i'
-  - label: 'changelog:added'
+  - label: 'version:minor'
     title:
       - '/feat/i'
       - '/feature/i'
       - '/add/i'
-
-  - label: 'changelog:deprecated'
-    title:
-      - '/deprecated/i'
-
-  - label: 'changelog:changed'
-    title:
-      - '/change/i'
-      - '/update/i'
-      - '/refactor/i'
-  - label: 'changelog:removed'
-    title:
-      - '/remove/i'
-      - '/delete/i'
-  - label: 'changelog:security'
-    title:
-      - '/security/i'
-

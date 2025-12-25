@@ -1,21 +1,21 @@
 /**
- * 更新 CHANGELOG.md 脚本
- * 将 GitHub Release 内容转换为 Keep a Changelog 格式并更新 CHANGELOG.md
+ * Update CHANGELOG.md script
+ * Extracts CodeRabbit summaries from release body and updates CHANGELOG.md
  * 
- * 环境变量:
- *   RELEASE_TAG_NAME - Release 的 tag 名称 (如 v1.0.0)
- *   RELEASE_BODY - Release 的内容 (包含累积的多个 PR)
+ * Environment variables:
+ *   RELEASE_TAG_NAME - Release tag name (e.g., v1.0.0)
+ *   RELEASE_BODY - Release body content (contains multiple PRs with CodeRabbit summaries)
  * 
- * 工作原理:
- *   1. 解析 release-drafter 生成的 release body
- *   2. 将 emoji 分类标题转换为 Keep a Changelog 格式
- *   3. 提取所有变更条目（可能来自多个 PR）
- *   4. 更新 CHANGELOG.md，将新版本插入到 Unreleased 之后
+ * How it works:
+ *   1. Parse release body to find each PR section
+ *   2. Extract CodeRabbit summary from each PR (between "## Summary by CodeRabbit" and "<sub>")
+ *   3. Merge categories (Bug Fixes, New Features, etc.) from all PRs
+ *   4. Update CHANGELOG.md with the merged content
  */
 
 const fs = require('fs');
 
-// 从环境变量获取 release 信息
+// Get release info from environment variables
 const tagName = process.env.RELEASE_TAG_NAME || '';
 const releaseBody = process.env.RELEASE_BODY || '';
 
@@ -27,125 +27,204 @@ if (!tagName) {
 const version = tagName.replace(/^v/, '');
 const date = new Date().toISOString().split('T')[0];
 
-// release-drafter 生成的分类标题（用文字匹配，不用 emoji）
-const SECTION_KEYWORDS = [
-  '🚀 New Features',
-  '🔄 Changes',
-  '⚠️ Deprecated',
-  '🗑️ Removed',
-  '🐛 Bug Fixes',
-  '🔒 Security'
+// Category keywords to look for in CodeRabbit summary
+const CATEGORY_KEYWORDS = [
+  'Bug Fixes',
+  'New Features',
+  'Features',
+  'Style',
+  'Refactor',
+  'Documentation',
+  'Tests',
+  'Chores',
+  'Performance',
+  'Security',
+  'Breaking Changes',
+  'Deprecated'
 ];
 
 /**
- * 将 release-drafter 生成的 release notes 转换为 CHANGELOG 格式
- * @param {string} body - Release 的内容
- * @returns {{ changelog: string, stats: { total: number, bySection: Record<string, number> } }}
+ * Extract CodeRabbit summary from PR body
+ * @param {string} prBody - PR body content
+ * @returns {string} Extracted summary or empty string
  */
-function convertToChangelog(body) {
-  const result = {
-    changelog: '',
-    stats: {
-      total: 0,
-      bySection: {}
-    }
-  };
-
-  if (!body || !body.trim()) {
-    result.changelog = `\n### New Features\n\n- Release ${version}\n`;
-    result.stats.total = 1;
-    return result;
+function extractCodeRabbitSummary(prBody) {
+  if (!prBody) return '';
+  
+  // Find content between "## Summary by CodeRabbit" and "<sub>" or end
+  const startMarker = '## Summary by CodeRabbit';
+  const endMarker = '<sub>';
+  
+  const startIndex = prBody.indexOf(startMarker);
+  if (startIndex === -1) return '';
+  
+  const contentStart = startIndex + startMarker.length;
+  let endIndex = prBody.indexOf(endMarker, contentStart);
+  
+  if (endIndex === -1) {
+    endIndex = prBody.length;
   }
-
-  let currentSection = null;
-  let currentItem = null;
-  const sections = {};
-
-  // 初始化所有分类
-  for (const section of SECTION_KEYWORDS) {
-    sections[section] = [];
-  }
-
-  const lines = body.split('\n');
-
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-
-    // 检查是否是分类标题（包含 New Features, Bug Fixes 等关键词）
-    let isSectionHeader = false;
-    for (const section of SECTION_KEYWORDS) {
-      if (line.includes(section)) {
-        // 保存之前的条目
-        if (currentItem && currentSection) {
-          sections[currentSection].push(currentItem);
-          result.stats.total++;
-        }
-        currentSection = section;
-        currentItem = null;
-        isSectionHeader = true;
-        break;
-      }
-    }
-    if (isSectionHeader) continue;
-
-    // 检查是否是变更条目标题（以 ### 开头）
-    if (trimmedLine.startsWith('### ') && currentSection) {
-      // 保存之前的条目
-      if (currentItem) {
-        sections[currentSection].push(currentItem);
-        result.stats.total++;
-      }
-      // 开始新条目
-      currentItem = {
-        title: trimmedLine.replace(/^### /, ''),
-        body: []
-      };
-      continue;
-    }
-
-    // 收集条目正文
-    if (currentItem && trimmedLine) {
-      currentItem.body.push(trimmedLine);
-    }
-  }
-
-  // 保存最后一个条目
-  if (currentItem && currentSection) {
-    sections[currentSection].push(currentItem);
-    result.stats.total++;
-  }
-
-  // 生成 changelog 内容，保持原有分类名称
-  for (const section of SECTION_KEYWORDS) {
-    const items = sections[section];
-    if (items.length > 0) {
-      result.changelog += `\n### ${section}\n\n`;
-      for (const item of items) {
-        result.changelog += `#### ${item.title}\n\n`;
-        if (item.body.length > 0) {
-          result.changelog += item.body.join('\n') + '\n\n';
-        }
-      }
-      result.stats.bySection[section] = items.length;
-    }
-  }
-
-  // 如果没有任何变更，添加默认条目
-  if (result.stats.total === 0) {
-    result.changelog = `\n### New Features\n\n- Release ${version}\n`;
-    result.stats.total = 1;
-  }
-
-  return result;
+  
+  return prBody.slice(contentStart, endIndex).trim();
 }
 
 /**
- * 更新 CHANGELOG.md 文件
+ * Parse CodeRabbit summary into categories
+ * @param {string} summary - CodeRabbit summary content
+ * @returns {Record<string, string[]>} Categories with their items
+ */
+function parseSummaryCategories(summary) {
+  const categories = {};
+  
+  if (!summary) return categories;
+  
+  let currentCategory = null;
+  const lines = summary.split('\n');
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    
+    // Check if this line is a category header (e.g., "* **Bug Fixes**" or "### Bug Fixes")
+    for (const keyword of CATEGORY_KEYWORDS) {
+      // Match patterns like: * **Bug Fixes**, ### Bug Fixes, **Bug Fixes**
+      const patterns = [
+        new RegExp(`^\\*\\s*\\*\\*${keyword}\\*\\*`, 'i'),
+        new RegExp(`^###?\\s*${keyword}`, 'i'),
+        new RegExp(`^\\*\\*${keyword}\\*\\*`, 'i'),
+      ];
+      
+      for (const pattern of patterns) {
+        if (pattern.test(trimmedLine)) {
+          currentCategory = keyword;
+          if (!categories[currentCategory]) {
+            categories[currentCategory] = [];
+          }
+          break;
+        }
+      }
+    }
+    
+    // If we're in a category and this is a content line (not empty, not a header)
+    if (currentCategory && trimmedLine && !trimmedLine.startsWith('*') && !trimmedLine.startsWith('#')) {
+      // Clean up the line and add it
+      const cleanedLine = trimmedLine
+        .replace(/^[-•]\s*/, '')  // Remove bullet points
+        .trim();
+      
+      if (cleanedLine) {
+        categories[currentCategory].push(cleanedLine);
+      }
+    }
+  }
+  
+  return categories;
+}
+
+/**
+ * Parse release body and extract all CodeRabbit summaries
+ * @param {string} body - Release body content
+ * @returns {Record<string, string[]>} Merged categories from all PRs
+ */
+function parseReleaseBody(body) {
+  const mergedCategories = {};
+  
+  if (!body || !body.trim()) {
+    return mergedCategories;
+  }
+  
+  // Split by PR sections (marked by ---)
+  const prSections = body.split(/^---$/m).filter(s => s.trim());
+  
+  console.log(`Found ${prSections.length} PR section(s)`);
+  
+  for (const section of prSections) {
+    // Extract PR title for logging
+    const titleMatch = section.match(/###\s*PR:\s*(.+?)(?:\n|$)/);
+    const prTitle = titleMatch ? titleMatch[1].trim() : 'Unknown PR';
+    
+    // Extract CodeRabbit summary
+    const summary = extractCodeRabbitSummary(section);
+    
+    if (summary) {
+      console.log(`  - ${prTitle}: Found CodeRabbit summary`);
+      
+      // Parse categories from this summary
+      const categories = parseSummaryCategories(summary);
+      
+      // Merge into overall categories
+      for (const [category, items] of Object.entries(categories)) {
+        if (!mergedCategories[category]) {
+          mergedCategories[category] = [];
+        }
+        mergedCategories[category].push(...items);
+      }
+    } else {
+      console.log(`  - ${prTitle}: No CodeRabbit summary found`);
+    }
+  }
+  
+  return mergedCategories;
+}
+
+/**
+ * Convert merged categories to changelog format
+ * @param {Record<string, string[]>} categories - Merged categories
+ * @returns {string} Formatted changelog content
+ */
+function formatChangelog(categories) {
+  if (Object.keys(categories).length === 0) {
+    return `\n### Changes\n\n- Release ${version}\n`;
+  }
+  
+  let changelog = '';
+  
+  // Define preferred order
+  const categoryOrder = [
+    'Breaking Changes',
+    'New Features',
+    'Features',
+    'Bug Fixes',
+    'Performance',
+    'Security',
+    'Refactor',
+    'Style',
+    'Documentation',
+    'Tests',
+    'Chores',
+    'Deprecated'
+  ];
+  
+  // Output categories in order
+  for (const category of categoryOrder) {
+    const items = categories[category];
+    if (items && items.length > 0) {
+      changelog += `\n### ${category}\n\n`;
+      for (const item of items) {
+        changelog += `- ${item}\n`;
+      }
+    }
+  }
+  
+  // Output any remaining categories not in the order list
+  for (const [category, items] of Object.entries(categories)) {
+    if (!categoryOrder.includes(category) && items.length > 0) {
+      changelog += `\n### ${category}\n\n`;
+      for (const item of items) {
+        changelog += `- ${item}\n`;
+      }
+    }
+  }
+  
+  return changelog;
+}
+
+/**
+ * Update CHANGELOG.md file
  */
 function updateChangelog() {
   const changelogPath = 'CHANGELOG.md';
 
-  // 检查文件是否存在
+  // Check if file exists
   if (!fs.existsSync(changelogPath)) {
     console.error(`❌ Error: ${changelogPath} not found`);
     process.exit(1);
@@ -153,19 +232,23 @@ function updateChangelog() {
 
   let changelog = fs.readFileSync(changelogPath, 'utf8');
 
-  // 转换 release body 为 changelog 格式
-  const { changelog: changelogContent, stats } = convertToChangelog(releaseBody);
+  // Parse release body and extract CodeRabbit summaries
+  console.log('Parsing release body...');
+  const categories = parseReleaseBody(releaseBody);
+  
+  // Format changelog content
+  const changelogContent = formatChangelog(categories);
 
-  // 生成新版本内容
+  // Generate new version content
   const newVersionContent = `## [${version}] - ${date}\n${changelogContent}`;
 
-  // 空的 Unreleased 区域
-  const emptyUnreleased = `## [Unreleased]\n\n### New Features\n\n### Changes\n\n### Bug Fixes\n\n### Removed\n\n`;
+  // Empty Unreleased section
+  const emptyUnreleased = `## [Unreleased]\n\n`;
 
-  // 尝试多种模式匹配 Unreleased 区域
+  // Try to match and replace Unreleased section
   let updated = false;
 
-  // 模式 1: 标准格式 - Unreleased 区域后面有其他版本
+  // Pattern 1: Standard format - Unreleased followed by another version
   const pattern1 = /(## \[Unreleased\][\s\S]*?)(## \[\d)/;
   if (changelog.match(pattern1)) {
     changelog = changelog.replace(
@@ -175,7 +258,7 @@ function updateChangelog() {
     updated = true;
   }
 
-  // 模式 2: Unreleased 是最后一个区域（首次发布）
+  // Pattern 2: Unreleased is the last section (first release)
   if (!updated) {
     const pattern2 = /(## \[Unreleased\][\s\S]*)$/;
     if (changelog.match(pattern2)) {
@@ -187,28 +270,29 @@ function updateChangelog() {
     }
   }
 
-  // 模式 3: 没有 Unreleased 区域，追加到文件末尾
+  // Pattern 3: No Unreleased section, append to end
   if (!updated) {
     changelog += `\n\n${newVersionContent}`;
     updated = true;
   }
 
-  // 写入更新后的 CHANGELOG
+  // Write updated changelog
   fs.writeFileSync(changelogPath, changelog);
 
-  // 输出统计信息
-  console.log(`✅ CHANGELOG.md 已更新`);
-  console.log(`   版本: ${version}`);
-  console.log(`   日期: ${date}`);
-  console.log(`   变更总数: ${stats.total} 条`);
-
-  if (Object.keys(stats.bySection).length > 0) {
-    console.log(`   分类统计:`);
-    for (const [section, count] of Object.entries(stats.bySection)) {
-      console.log(`     - ${section}: ${count} 条`);
+  // Output stats
+  const totalItems = Object.values(categories).reduce((sum, items) => sum + items.length, 0);
+  console.log(`\n✅ CHANGELOG.md updated`);
+  console.log(`   Version: ${version}`);
+  console.log(`   Date: ${date}`);
+  console.log(`   Total items: ${totalItems}`);
+  
+  if (Object.keys(categories).length > 0) {
+    console.log(`   Categories:`);
+    for (const [category, items] of Object.entries(categories)) {
+      console.log(`     - ${category}: ${items.length} item(s)`);
     }
   }
 }
 
-// 执行更新
+// Execute
 updateChangelog();

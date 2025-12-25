@@ -2,14 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug update-changelog.js",
+      "name": "Debug update-changelog.js (CodeRabbit format)",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/.github/scripts/update-changelog.js",
       "cwd": "${workspaceFolder}",
       "env": {
-        "RELEASE_TAG_NAME": "0.4.0",
-        "RELEASE_BODY": "## What's Changed\n\n> 📦 本次发布包含 2 个变更\n\n🚀 New Features\n\n### 新增用户头像功能\n\n支持 jpg/png 格式，最大 5MB\n\n### 支持暗黑模式\n\n根据系统设置自动切换\n\n🐛 Bug Fixes\n\n### 修复登录问题\n\n修复了在某些情况下登录失败的问题"
+        "RELEASE_TAG_NAME": "v1.0.0",
+        "RELEASE_BODY": "## What's Changed\n\n---\n### PR: Add user authentication (#1)\n\nSome description\n\n## Summary by CodeRabbit\n\n* **New Features**\nAdded user login functionality\nAdded password reset feature\n\n* **Bug Fixes**\nFixed session timeout issue\n\n<sub>✏️ Tip: You can customize this high-level summary in your review settings.</sub>\n\n---\n### PR: Fix payment bug (#2)\n\n## Summary by CodeRabbit\n\n* **Bug Fixes**\nFixed payment processing error\nFixed currency conversion bug\n\n* **Style**\nImproved button styles\n\n<sub>✏️ Tip: You can customize this high-level summary in your review settings.</sub>\n\n---"
       },
       "console": "integratedTerminal",
       "skipFiles": [
@@ -17,14 +17,14 @@
       ]
     },
     {
-      "name": "Debug update-changelog.js (简单测试)",
+      "name": "Debug update-changelog.js (simple test)",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/.github/scripts/update-changelog.js",
       "cwd": "${workspaceFolder}",
       "env": {
-        "RELEASE_TAG_NAME": "0.4.0",
-        "RELEASE_BODY": "🚀 New Features\n\n### 测试功能\n\n这是测试正文"
+        "RELEASE_TAG_NAME": "v0.1.0",
+        "RELEASE_BODY": "---\n### PR: Test PR (#1)\n\n## Summary by CodeRabbit\n\n* **New Features**\nTest feature\n\n<sub>✏️ Tip</sub>\n\n---"
       },
       "console": "integratedTerminal",
       "skipFiles": [
@@ -33,4 +33,3 @@
     }
   ]
 }
-
