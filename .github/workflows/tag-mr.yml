@@ -31,6 +31,8 @@ jobs:
             env_name: ${{ steps.config.outputs.env_name }}
             pr_body: ${{ steps.pr-body.outputs.pr_body }}
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
             - name: Determine label and environment
               id: config
               run: |
