@@ -27,7 +27,7 @@ PAYLOAD=$(jq -n --arg content "$PR_BODY" '{ content: $content }')
 
 curl -X POST \
   -H "Content-Type: application/json" \
-  -H "X-Service-Key: $SERVICE_KEY" \
+  -H "service-key: $SERVICE_KEY" \
   -d "$PAYLOAD" \
   "$TTRAA_URL/api/admin/app-release/on-mr-tagged"
 
