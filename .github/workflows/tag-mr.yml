@@ -50,12 +50,6 @@ jobs:
                       exit 1
                   fi
 
-            - name: Setup GitHub CLI
-              if: github.event_name == 'workflow_dispatch'
-              uses: cli/cli-action@v1
-              with:
-                  version: latest
-
             - name: Get PR body
               id: pr-body
               env:
