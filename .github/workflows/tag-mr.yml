@@ -13,10 +13,15 @@ on:
                 description: 'PR number'
                 required: true
                 type: string
-            tag_name:
-                description: 'Tag name (e.g., release:testing)'
+            label_name:
+                description: 'Label name'
                 required: true
-                type: string
+                type: choice
+                options:
+                    - release:testing
+                    - release:staging
+                    - release:development
+                    - release:production
 
 jobs:
     debug:
@@ -36,16 +41,13 @@ jobs:
             env_name: ${{ steps.config.outputs.env_name }}
             pr_body: ${{ steps.pr-body.outputs.pr_body }}
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
             - name: Determine label and environment
               id: config
               run: |
                   if [ "${{ github.event_name }}" == "pull_request" ]; then
                       LABEL_NAME="${{ github.event.label.name }}"
                   else
-                      LABEL_NAME="${{ github.event.inputs.tag_name }}"
+                      LABEL_NAME="${{ github.event.inputs.label_name }}"
                   fi
                   
                   if [[ "$LABEL_NAME" =~ ^release:(.+)$ ]]; then
@@ -79,8 +81,6 @@ jobs:
         runs-on: ubuntu-latest
         environment: ${{ needs.prepare.outputs.env_name }}
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
             - name: Send MR info to API
               env:
                   TTRAA_URL: ${{ vars.TTRAA_URL }}
