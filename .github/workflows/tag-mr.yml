@@ -26,6 +26,9 @@ jobs:
             github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
             - name: Determine label and environment
               id: config
               run: |
@@ -68,22 +71,26 @@ jobs:
                   echo "$PR_BODY" >> $GITHUB_OUTPUT
                   echo "EOF" >> $GITHUB_OUTPUT
 
-            - name: Send MR info to API
-              environment: ${{ steps.config.outputs.env_name }}
-              run: |
-                  echo "=== Debug: Environment Variables ==="
-                  echo "TTRAA_URL: $TTRAA_URL"
-                  if [ -z "$TTRAA_URL" ]; then
-                      echo "⚠️  WARNING: TTRAA_URL is empty!"
-                      exit 1
-                  else
-                      echo "✅ TTRAA_URL is set: $TTRAA_URL"
-                  fi
-                  echo "===================================="
-                  
-                  PAYLOAD=$(jq -n --arg content "${{ steps.pr-body.outputs.pr_body }}" '{ content: $content }')
+            - name: Make script executable
+              run: chmod +x .github/scripts/send-mr-notification.sh
 
-                  curl -X POST \
-                    -H "Content-Type: application/json" \
-                    -d "$PAYLOAD" \
-                    "$TTRAA_URL/api/admin/app-release/on-mr-tagged"
+            # Note: GitHub Actions requires static environment names, so we need separate steps for each environment
+            - name: Send MR info to API (staging)
+              if: steps.config.outputs.env_name == 'staging'
+              environment: staging
+              run: .github/scripts/send-mr-notification.sh "${{ steps.pr-body.outputs.pr_body }}"
+
+            - name: Send MR info to API (development)
+              if: steps.config.outputs.env_name == 'development'
+              environment: development
+              run: .github/scripts/send-mr-notification.sh "${{ steps.pr-body.outputs.pr_body }}"
+
+            - name: Send MR info to API (testing)
+              if: steps.config.outputs.env_name == 'testing'
+              environment: testing
+              run: .github/scripts/send-mr-notification.sh "${{ steps.pr-body.outputs.pr_body }}"
+
+            - name: Send MR info to API (production)
+              if: steps.config.outputs.env_name == 'production'
+              environment: production
+              run: .github/scripts/send-mr-notification.sh "${{ steps.pr-body.outputs.pr_body }}"
