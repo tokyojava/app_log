@@ -1,0 +1,31 @@
+name: MR Tagged Notification
+
+on:
+    pull_request:
+        types: [labeled]
+
+jobs:
+    notify-mr-tagged:
+        # Only run when release labels are added
+        if: |
+            github.event.label.name == 'release:staging' ||
+            github.event.label.name == 'release:development' ||
+            github.event.label.name == 'release:testing' ||
+            github.event.label.name == 'release:production'
+        runs-on: ubuntu-latest
+        environment: ${{ 
+            github.event.label.name == 'release:staging' && 'staging' ||
+            github.event.label.name == 'release:development' && 'development' ||
+            github.event.label.name == 'release:testing' && 'testing' ||
+            github.event.label.name == 'release:production' && 'production'
+            }}
+        steps:
+            - name: Send MR info to API
+              run: |
+                  PAYLOAD=$(jq -n --arg content "${{ github.event.pull_request.body }}" '{ content: $content }')
+
+                  curl -X POST \
+                    -H "Content-Type: application/json" \
+                    -d "$PAYLOAD" \
+                    "${{ vars.TTRAA_URL }}/api/admin/app-release/on-mr-tagged"
+
