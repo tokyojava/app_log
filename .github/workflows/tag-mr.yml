@@ -71,6 +71,8 @@ jobs:
         runs-on: ubuntu-latest
         environment: ${{ needs.prepare.outputs.env_name }}
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
             - name: Send MR info to API
               env:
                   TTRAA_URL: ${{ vars.TTRAA_URL }}
