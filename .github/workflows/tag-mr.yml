@@ -19,13 +19,18 @@ on:
                 type: string
 
 jobs:
-    notify-mr-tagged:
-        # Only run for release labels
+    prepare:
         if: |
             (github.event_name == 'labeled' && startsWith(github.event.label.name, 'release:')) ||
             github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
+        outputs:
+            env_name: ${{ steps.config.outputs.env_name }}
+            pr_body: ${{ steps.pr-body.outputs.pr_body }}
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
             - name: Determine label and environment
               id: config
               run: |
@@ -35,7 +40,6 @@ jobs:
                       LABEL_NAME="${{ github.event.inputs.tag_name }}"
                   fi
                   
-                  # Extract environment from label (e.g., release:testing -> testing)
                   if [[ "$LABEL_NAME" =~ ^release:(.+)$ ]]; then
                       ENV_NAME="${BASH_REMATCH[1]}"
                       echo "Label: $LABEL_NAME"
@@ -68,22 +72,14 @@ jobs:
                   echo "$PR_BODY" >> $GITHUB_OUTPUT
                   echo "EOF" >> $GITHUB_OUTPUT
 
+    notify:
+        needs: prepare
+        runs-on: ubuntu-latest
+        environment: ${{ needs.prepare.outputs.env_name }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
             - name: Send MR info to API
-              environment: ${{ steps.config.outputs.env_name }}
               run: |
-                  echo "=== Debug: Environment Variables ==="
-                  echo "TTRAA_URL: $TTRAA_URL"
-                  if [ -z "$TTRAA_URL" ]; then
-                      echo "⚠️  WARNING: TTRAA_URL is empty!"
-                      exit 1
-                  else
-                      echo "✅ TTRAA_URL is set: $TTRAA_URL"
-                  fi
-                  echo "===================================="
-                  
-                  PAYLOAD=$(jq -n --arg content "${{ steps.pr-body.outputs.pr_body }}" '{ content: $content }')
-
-                  curl -X POST \
-                    -H "Content-Type: application/json" \
-                    -d "$PAYLOAD" \
-                    "$TTRAA_URL/api/admin/app-release/on-mr-tagged"
+                  chmod +x .github/scripts/send-mr-notification.sh
+                  .github/scripts/send-mr-notification.sh "${{ needs.prepare.outputs.pr_body }}"
