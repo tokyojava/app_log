@@ -22,11 +22,20 @@ jobs:
         steps:
             - name: Send MR info to API
               run: |
+                  echo "=== Debug: Environment Variables ==="
+                  echo "TTRAA_URL: $TTRAA_URL"
+                  echo "TTRAA_URL length: ${#TTRAA_URL}"
+                  if [ -z "$TTRAA_URL" ]; then
+                      echo "⚠️  WARNING: TTRAA_URL is empty!"
+                  else
+                      echo "✅ TTRAA_URL is set: $TTRAA_URL"
+                  fi
+                  echo "===================================="
+                  
                   PAYLOAD=$(jq -n --arg content "${{ github.event.pull_request.body }}" '{ content: $content }')
 
-                  echo "TTRAA_URL: ${{ vars.TTRAA_URL }}"
                   curl -X POST \
                     -H "Content-Type: application/json" \
                     -d "$PAYLOAD" \
-                    "${{ vars.TTRAA_URL }}/api/admin/app-release/on-mr-tagged"
+                    "$TTRAA_URL/api/admin/app-release/on-mr-tagged"
 
