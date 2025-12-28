@@ -24,9 +24,9 @@ jobs:
               run: |
                   PAYLOAD=$(jq -n --arg content "${{ github.event.pull_request.body }}" '{ content: $content }')
 
-                  echo "TTRAA_URL: ${{ vars.TTRAA_URL }}"
+                  echo "TTRAA_URL: $TTRAA_URL"
                   curl -X POST \
                     -H "Content-Type: application/json" \
                     -d "$PAYLOAD" \
-                    "${{ vars.TTRAA_URL }}/api/admin/app-release/on-mr-tagged"
+                    "$TTRAA_URL/api/admin/app-release/on-mr-tagged"
 
