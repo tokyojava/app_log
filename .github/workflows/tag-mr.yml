@@ -19,10 +19,18 @@ on:
                 type: string
 
 jobs:
+    debug:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Debug event info
+              run: |
+                  echo "Event name: ${{ github.event_name }}"
+                  echo "Label name: ${{ github.event.label.name }}"
+                  echo "All labels: ${{ toJson(github.event.pull_request.labels) }}"
+
     prepare:
-        if: |
-            (github.event_name == 'pull_request' && startsWith(github.event.label.name, 'release:')) ||
-            github.event_name == 'workflow_dispatch'
+        needs: debug
+        if: startsWith(github.event.label.name, 'release:') || github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
         outputs:
             env_name: ${{ steps.config.outputs.env_name }}
