@@ -21,7 +21,7 @@ on:
 jobs:
     prepare:
         if: |
-            (github.event_name == 'labeled' && startsWith(github.event.label.name, 'release:')) ||
+            (github.event_name == 'pull_request' && startsWith(github.event.label.name, 'release:')) ||
             github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
         outputs:
@@ -34,7 +34,7 @@ jobs:
             - name: Determine label and environment
               id: config
               run: |
-                  if [ "${{ github.event_name }}" == "labeled" ]; then
+                  if [ "${{ github.event_name }}" == "pull_request" ]; then
                       LABEL_NAME="${{ github.event.label.name }}"
                   else
                       LABEL_NAME="${{ github.event.inputs.tag_name }}"
@@ -55,7 +55,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  if [ "${{ github.event_name }}" == "labeled" ]; then
+                  if [ "${{ github.event_name }}" == "pull_request" ]; then
                       PR_BODY="${{ github.event.pull_request.body }}"
                   else
                       PR_NUMBER="${{ github.event.inputs.pr_number }}"
