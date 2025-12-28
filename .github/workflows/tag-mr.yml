@@ -88,6 +88,7 @@ jobs:
             - name: Send MR info to API
               env:
                   TTRAA_URL: ${{ vars.TTRAA_URL }}
+                  SERVICE_KEY: ${{ secrets.SERVICE_KEY }}
               run: |
                   chmod +x .github/scripts/send-mr-notification.sh
                   .github/scripts/send-mr-notification.sh "${{ needs.prepare.outputs.pr_body }}"

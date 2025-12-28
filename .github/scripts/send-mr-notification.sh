@@ -14,12 +14,20 @@ if [ -z "$TTRAA_URL" ]; then
 else
     echo "✅ TTRAA_URL is set: $TTRAA_URL"
 fi
+
+if [ -z "$SERVICE_KEY" ]; then
+    echo "⚠️  WARNING: SERVICE_KEY is empty!"
+    exit 1
+else
+    echo "✅ SERVICE_KEY is set"
+fi
 echo "===================================="
 
 PAYLOAD=$(jq -n --arg content "$PR_BODY" '{ content: $content }')
 
 curl -X POST \
   -H "Content-Type: application/json" \
+  -H "X-Service-Key: $SERVICE_KEY" \
   -d "$PAYLOAD" \
   "$TTRAA_URL/api/admin/app-release/on-mr-tagged"
 
