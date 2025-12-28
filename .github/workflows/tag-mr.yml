@@ -62,8 +62,12 @@ jobs:
                       PR_NUMBER="${{ github.event.inputs.pr_number }}"
                       echo "Fetching PR #$PR_NUMBER from $GH_REPO"
                       PR_BODY=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json body --jq '.body')
-                      echo "PR body length: ${#PR_BODY}"
                   fi
+                  
+                  echo "=== PR Body ==="
+                  echo "$PR_BODY"
+                  echo "PR body length: ${#PR_BODY}"
+                  echo "==============="
                   
                   echo "pr_body<<EOF" >> $GITHUB_OUTPUT
                   echo "$PR_BODY" >> $GITHUB_OUTPUT
@@ -76,6 +80,11 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+            - name: Debug PR body
+              run: |
+                  echo "=== PR Body from prepare job ==="
+                  echo "body is ${{ needs.prepare.outputs.pr_body }}"
+                  echo "================================="
             - name: Send MR info to API
               env:
                   TTRAA_URL: ${{ vars.TTRAA_URL }}
