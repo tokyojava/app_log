@@ -8,6 +8,9 @@ PR_BODY="$1"
 
 echo "=== Debug: Environment Variables ==="
 echo "TTRAA_URL: $TTRAA_URL"
+echo "PR_NUMBER: $PR_NUMBER"
+echo "PR_URL: $PR_URL"
+
 if [ -z "$TTRAA_URL" ]; then
     echo "⚠️  WARNING: TTRAA_URL is empty!"
     exit 1
@@ -23,7 +26,11 @@ else
 fi
 echo "===================================="
 
-PAYLOAD=$(jq -n --arg content "$PR_BODY" '{ content: $content }')
+PAYLOAD=$(jq -n \
+    --arg content "$PR_BODY" \
+    --arg pr_number "$PR_NUMBER" \
+    --arg pr_url "$PR_URL" \
+    '{ content: $content, pr_number: $pr_number, pr_url: $pr_url }')
 
 curl -X POST \
   -H "Content-Type: application/json" \
